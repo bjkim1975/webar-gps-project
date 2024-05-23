@@ -34,6 +34,8 @@
                     const lat1 = position.coords.latitude;
                     const lon1 = position.coords.longitude;
 
+                    console.log(`Current position: (${lat1}, ${lon1})`);
+
                     // Calculate the position 2 meters in front of the current position
                     const distance = 2; // in meters
                     const bearing = 0; // 0 degrees (north)
@@ -42,15 +44,18 @@
                     targetLat = point.latitude;
                     targetLon = point.longitude;
 
+                    console.log(`2m in front position: (${targetLat}, ${targetLon})`);
+
                     // Update the box position
                     const box = document.querySelector('a-box');
                     box.setAttribute('gps-entity-place', `latitude: ${targetLat}; longitude: ${targetLon}`);
 
-                    console.log(`Current position: (${lat1}, ${lon1})`);
-                    console.log(`2m in front position: (${targetLat}, ${targetLon})`);
+                    console.log('Box position updated');
 
                     // Update distance every 0.5 seconds
                     setInterval(updateDistance, 500);
+                }, function(error) {
+                    console.error(`Error getting GPS position: ${error.message}`);
                 });
             } else {
                 alert("Geolocation is not supported by this browser.");
@@ -62,16 +67,19 @@
                 const lat2 = position.coords.latitude;
                 const lon2 = position.coords.longitude;
 
+                console.log(`Current GPS: (${lat2}, ${lon2})`);
+
                 const distance = geolib.getDistance(
                     {latitude: lat2, longitude: lon2},
                     {latitude: targetLat, longitude: targetLon}
                 );
 
+                console.log(`Distance to target: ${distance} meters`);
+
                 const distanceElement = document.getElementById('distance');
                 distanceElement.innerHTML = `Distance: ${distance} meters`;
-
-                console.log(`Current GPS: (${lat2}, ${lon2})`);
-                console.log(`Distance to target: ${distance} meters`);
+            }, function(error) {
+                console.error(`Error getting GPS position: ${error.message}`);
             });
         }
     </script>
