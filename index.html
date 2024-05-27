@@ -2,36 +2,18 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Geo-based WebAR</title>
+    <title>Simple WebAR Example</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://ar-js-org.github.io/aframe/build/aframe-ar.js"></script> <!-- Updated AR.js integration -->
-    <!-- Geo-Location Component -->
-    <script src="https://wimvanderbauwhede.github.io/aframe-geo-location-component/dist/aframe-geo-location-component.min.js"></script>
+    <script src="https://ar-js-org.github.io/aframe/build/aframe-ar.js"></script>
 </head>
 <body style="margin: 0; overflow: hidden;">
-    <a-scene vr-mode-ui="enabled: false" embedded arjs='sourceType: webcam;'>
-        <!-- Use the geolocation component to position the scene -->
-        <a-entity id="geoPosition">
-            <!-- Yellow box positioned in the center of the camera view -->
-            <a-box position="0 0 -5" material="color: yellow;" depth="0.3" height="0.3" width="0.3"></a-box>
-        </a-entity>
-        <a-entity camera look-controls></a-entity>
+    <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
+        <!-- Simple box -->
+        <a-box position="0 0.5 -3" rotation="0 45 0" color="#4CC3D9"></a-box>
+
+        <!-- Camera with marker-based tracking -->
+        <a-marker-camera preset="hiro"></a-marker-camera>
     </a-scene>
-    <script>
-        navigator.geolocation.getCurrentPosition(function(position) {
-            console.log("Latitude: " + position.coords.latitude);
-            console.log("Longitude: " + position.coords.longitude);
-            var geoPosition = document.querySelector('#geoPosition');
-            geoPosition.setAttribute('gps-entity-place', `latitude: ${position.coords.latitude}; longitude: ${position.coords.longitude}`);
-        }, function(error) {
-            console.error("Geolocation failed: " + error.message);
-        }, {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        });
-    </script>
-    
 </body>
 </html>
