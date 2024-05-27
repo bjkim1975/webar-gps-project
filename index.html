@@ -34,7 +34,7 @@
     </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
-    <div id="distance">Distance: Calculating...</div>
+    <div id="distance">Distance: 10m Calculating...</div>
     <div id="log">Log:</div>
     <a-scene vr-mode-ui="enabled: false" embedded arjs>
         <a-camera gps-camera rotation-reader></a-camera>
@@ -58,14 +58,14 @@
                     logMessage(`Current position: (${lat1}, ${lon1})`);
 
                     // Calculate the position 2 meters in front of the current position
-                    const distance = 2; // in meters
+                    const distance = 10; // in meters
                     const bearing = 0; // 0 degrees (north)
                     const point = geolib.computeDestinationPoint({latitude: lat1, longitude: lon1}, distance, bearing);
 
                     targetLat = point.latitude;
                     targetLon = point.longitude;
 
-                    logMessage(`2m in front position: (${targetLat}, ${targetLon})`);
+                    logMessage(`10m in front position: (${targetLat}, ${targetLon})`);
 
                     // Update the box position
                     const box = document.querySelector('a-box');
