@@ -1,25 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Simple WebAR Test</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebAR Project</title>
+    <!-- Include A-Frame library for AR -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
-    <style>
-        body { margin: 0; overflow: hidden; }
-        .a-canvas { display: block; }
-    </style>
 </head>
 <body>
-    <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
-        <!-- 기본 카메라 설정을 사용 -->
-        <a-entity camera active></a-entity>
-
-        <!-- 정육면체 생성 -->
-        <a-box position="0 1.5 -5" rotation="0 45 0" color="#FFFF00" depth="0.1" height="0.1" width="0.1">
-        </a-box>
-
-        <!-- 환경 설정 -->
-        <a-sky color="#ECECEC"></a-sky>
+    <!-- AR scene -->
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+        <!-- Add a 10cm cube at the center of the screen -->
+        <a-box position="0 0 -1" width="0.1" height="0.1" depth="0.1" color="red"></a-box>
+        <!-- Display the camera feed -->
+        <a-entity camera></a-entity>
     </a-scene>
 </body>
 </html>
