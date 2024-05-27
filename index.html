@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AR GPS Approach Simulation</title>
+    <title>AR GPS Navigation</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .info { position: fixed; top: 10px; left: 10px; background: white; padding: 10px; border-radius: 8px; }
+    </style>
 </head>
 <body style="margin: 0; overflow: hidden;">
+    <div class="info">
+        <p>현재 위치: <span id="current-position">Loading...</span></p>
+        <p>목적지 위치: <span id="destination-position">Loading...</span></p>
+    </div>
     <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
         <!-- 정육면체 엔티티 정의 -->
         <a-box id="destination-box" position="0 0.15 0" depth="0.3" height="0.3" width="0.3" color="red"></a-box>
@@ -20,6 +28,11 @@
         function updateARObject(lat, lon) {
             const box = document.getElementById('destination-box');
             box.setAttribute('gps-entity-place', `latitude: ${lat}; longitude: ${lon}`);
+        }
+
+        function updateDisplay(currentLat, currentLon, destinationLat, destinationLon) {
+            document.getElementById('current-position').textContent = `${currentLat.toFixed(6)}, ${currentLon.toFixed(6)}`;
+            document.getElementById('destination-position').textContent = `${destinationLat.toFixed(6)}, ${destinationLon.toFixed(6)}`;
         }
 
         function success(pos) {
@@ -47,6 +60,9 @@
                 destinationLon = newDestination.geometry.coordinates[0];
                 updateARObject(destinationLat, destinationLon);
             }
+
+            // 화면에 현재 위치와 목적지 위치 업데이트
+            updateDisplay(currentLat, currentLon, destinationLat, destinationLon);
         }
 
         function error(err) {
