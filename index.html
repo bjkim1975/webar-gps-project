@@ -83,6 +83,7 @@
                 const simulatedLat = simulatedPosition.geometry.coordinates[1];
                 const simulatedLon = simulatedPosition.geometry.coordinates[0];
                 success({ coords: { latitude: simulatedLat, longitude: simulatedLon } });
+                console.log(`시뮬레이션된 현재 위치 (${steps}): ${simulatedLat}, ${simulatedLon}`);
             }
         }, 500);
     </script>
