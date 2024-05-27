@@ -1,91 +1,22 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>AR GPS Navigation</title>
+  <head>
+    <meta charset="utf-8">
+    <title>WebAR Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- A-Frame 라이브러리 -->
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        .info { position: fixed; top: 10px; left: 10px; background: white; padding: 10px; border-radius: 8px; }
-    </style>
-</head>
-<body style="margin: 0; overflow: hidden;">
-    <div class="info">
-        <p>현재 위치: <span id="current-position">Loading...</span></p>
-        <p>목적지 위치: <span id="destination-position">Loading...</span></p>
-    </div>
-    <a-scene embedded arjs='sourceType: webcam; debugUIEnabled: false;'>
-        <!-- 정육면체 엔티티 정의 -->
-        <a-box id="destination-box" position="0 0.15 0" depth="0.3" height="0.3" width="0.3" color="red"></a-box>
-        <a-entity camera></a-entity>
+    <!-- AR.js 라이브러리 -->
+    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/build/aframe-ar.js"></script>
+  </head>
+  <body style="margin: 0; overflow: hidden;">
+    <a-scene embedded arjs='sourceType: webcam;'>
+      <!-- AR.js Marker -->
+      <a-marker preset='hiro'>
+        <!-- 노란색 정육면체 -->
+        <a-box position='0 0.15 0' material='color: yellow;' depth='0.3' height='0.3' width='0.3'></a-box>
+      </a-marker>
+      <a-entity camera></a-entity>
     </a-scene>
-
-    <script>
-        let initialLat, initialLon;
-        let destinationLat, destinationLon;
-        let steps = 0;
-        const stepDistance = 0.1 / 1000; // 10cm in kilometers
-        const initialDistance = 10 / 1000; // 10 meters in kilometers
-
-        function updateARObject(lat, lon) {
-            const box = document.getElementById('destination-box');
-            box.setAttribute('gps-entity-place', `latitude: ${lat}; longitude: ${lon}`);
-        }
-
-        function updateDisplay(currentLat, currentLon, destinationLat, destinationLon) {
-            document.getElementById('current-position').textContent = `${currentLat.toFixed(6)}, ${currentLon.toFixed(6)}`;
-            document.getElementById('destination-position').textContent = `${destinationLat.toFixed(6)}, ${destinationLon.toFixed(6)}`;
-        }
-
-        function success(pos) {
-            const crd = pos.coords;
-            const currentLat = crd.latitude;
-            const currentLon = crd.longitude;
-
-            console.log(`현재 위치: ${currentLat}, ${currentLon}`);
-
-            if (steps === 0) {
-                // 초기 목적지 위치 설정 (현재 위치에서 북쪽으로 10 미터)
-                initialLat = currentLat;
-                initialLon = currentLon;
-                const initialDestination = turf.destination([initialLon, initialLat], initialDistance, 0, {units: 'kilometers'});
-                destinationLat = initialDestination.geometry.coordinates[1];
-                destinationLon = initialDestination.geometry.coordinates[0];
-            } else {
-                // 초기 위치에서 10cm씩 북쪽으로 이동
-                const newDestination = turf.destination([initialLon, initialLat], initialDistance - (steps * stepDistance), 0, {units: 'kilometers'});
-                destinationLat = newDestination.geometry.coordinates[1];
-                destinationLon = newDestination.geometry.coordinates[0];
-            }
-
-            updateARObject(destinationLat, destinationLon);
-            updateDisplay(currentLat, currentLon, destinationLat, destinationLon);
-            steps++;
-        }
-
-        function error(err) {
-            console.warn(`ERROR(${err.code}): ${err.message}`);
-        }
-
-        const options = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        };
-
-        setInterval(function() {
-            navigator.geolocation.getCurrentPosition(success, error, options);
-
-            // 임의로 현재 위치를 북쪽으로 10cm씩 이동
-            if (initialLat && initialLon) {
-                const simulatedPosition = turf.destination([initialLon, initialLat], steps * stepDistance, 0, {units: 'kilometers'});
-                const simulatedLat = simulatedPosition.geometry.coordinates[1];
-                const simulatedLon = simulatedPosition.geometry.coordinates[0];
-                success({ coords: { latitude: simulatedLat, longitude: simulatedLon } });
-                console.log(`시뮬레이션된 현재 위치 (${steps}): ${simulatedLat}, ${simulatedLon}`);
-            }
-        }, 500);
-    </script>
-</body>
+  </body>
 </html>
