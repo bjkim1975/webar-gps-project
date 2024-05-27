@@ -19,8 +19,9 @@
         <a-entity camera look-controls></a-entity>
     </a-scene>
     <script>
-        // This script sets the box at the user's current location
         navigator.geolocation.getCurrentPosition(function(position) {
+            console.log("Latitude: " + position.coords.latitude);
+            console.log("Longitude: " + position.coords.longitude);
             var geoPosition = document.querySelector('#geoPosition');
             geoPosition.setAttribute('gps-entity-place', `latitude: ${position.coords.latitude}; longitude: ${position.coords.longitude}`);
         }, function(error) {
@@ -31,5 +32,6 @@
             maximumAge: 0
         });
     </script>
+    
 </body>
 </html>
