@@ -5,45 +5,54 @@
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
 </head>
 <body>
-    <h1>GPS Movement Simulation</h1>
+    <h1>GPS Movement Tracking</h1>
     <div>Current Latitude: <span id="current-lat"></span>, Longitude: <span id="current-lon"></span></div>
     <div>Destination Latitude: <span id="destination-lat"></span>, Longitude: <span id="destination-lon"></span></div>
     <div>Distance to Destination: <span id="distance"></span> meters</div>
 
     <script>
-        let currentLat = 37.556738; // 초기 위도
-        let currentLon = 126.975960; // 초기 경도
-        const initialDistance = 2; // 2 미터 북쪽
+        let destinationLat, destinationLon;
 
-        // 초기 목적지 설정
-        let destination = turf.destination([currentLon, currentLat], initialDistance / 1000, 0, {units: 'kilometers'});
-        let destinationLat = destination.geometry.coordinates[1];
-        let destinationLon = destination.geometry.coordinates[0];
+        function success(pos) {
+            const crd = pos.coords;
+            const currentLat = crd.latitude;
+            const currentLon = crd.longitude;
 
-        function updatePosition() {
             // 현재 위치 표시
             document.getElementById('current-lat').textContent = currentLat.toFixed(6);
             document.getElementById('current-lon').textContent = currentLon.toFixed(6);
 
-            // 목적지 위치 표시
-            document.getElementById('destination-lat').textContent = destinationLat.toFixed(6);
-            document.getElementById('destination-lon').textContent = destinationLon.toFixed(6);
+            if (!destinationLat || !destinationLon) {
+                // 목적지 위치 설정 및 표시 (첫 호출 시 현재 위치에서 북쪽으로 10 미터)
+                const destination = turf.destination([currentLon, currentLat], 10 / 1000, 0, {units: 'kilometers'});
+                destinationLat = destination.geometry.coordinates[1];
+                destinationLon = destination.geometry.coordinates[0];
+                document.getElementById('destination-lat').textContent = destinationLat.toFixed(6);
+                document.getElementById('destination-lon').textContent = destinationLon.toFixed(6);
+            }
 
             // 거리 계산 및 표시
             const from = turf.point([currentLon, currentLat]);
             const to = turf.point([destinationLon, destinationLat]);
             const options = {units: 'meters'};
-            let distance = turf.distance(from, to, options);
+            const distance = turf.distance(from, to, options);
             document.getElementById('distance').textContent = distance.toFixed(2);
-
-            // 현재 위치를 약간 북쪽으로 이동
-            let newPoint = turf.destination([currentLon, currentLat], 0.002, 0, {units: 'kilometers'});
-            currentLat = newPoint.geometry.coordinates[1];
-            currentLon = newPoint.geometry.coordinates[0];
         }
 
-        // 0.5초마다 위치 업데이트
-        setInterval(updatePosition, 500);
+        function error(err) {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+        }
+
+        const options = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        };
+
+        // 현재 위치 갱신 및 거리 계산을 1초 간격으로 실행
+        setInterval(function() {
+            navigator.geolocation.getCurrentPosition(success, error, options);
+        }, 1000);
     </script>
 </body>
 </html>
