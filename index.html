@@ -1,9 +1,47 @@
-<script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var from = turf.point([13.408056, 52.518611]);
-        var options = {units: 'meters'};
-        var destination = turf.destination(from, 1000, 180, options);
-        console.log(destination.geometry.coordinates); // 목적지의 위도와 경도
-    });
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web AR GPS Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
+</head>
+<body>
+    <h1>Web AR GPS Example</h1>
+    <p id="coordinates">Waiting for GPS...</p>
+    <p id="newCoordinates">Calculating...</p>
+
+    <script>
+        function updateLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(function(position) {
+                    var lat1 = position.coords.latitude;
+                    var lon1 = position.coords.longitude;
+                    document.getElementById('coordinates').textContent = 'Current position: ' + lat1 + ', ' + lon1;
+
+                    // Turf.js를 사용하여 목적지 계산
+                    var from = turf.point([lon1, lat1]);
+                    var distance = 2; // meters
+                    var bearing = 0; // north
+                    var options = {units: 'meters'};
+                    var destination = turf.destination(from, distance, bearing, options);
+                    var newLat = destination.geometry.coordinates[1];
+                    var newLon = destination.geometry.coordinates[0];
+
+                    document.getElementById('newCoordinates').textContent = '2m in front position: ' + newLat + ', ' + newLon;
+                    
+                    // 여기에서 AR 증강 로직을 통합할 수 있습니다.
+                    // 예: createBoxAt(newLat, newLon);
+
+                }, function(error) {
+                    console.error("Error Code = " + error.code + " - " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', updateLocation);
+    </script>
+</body>
+</html>
