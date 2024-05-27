@@ -3,45 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web AR GPS Example</title>
+    <title>Web AR GPS and Turf.js Example</title>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
 </head>
 <body>
     <h1>Web AR GPS Example</h1>
-    <p id="coordinates">Waiting for GPS...</p>
-    <p id="newCoordinates">Calculating...</p>
+    <p id="currentPosition">Waiting for GPS...</p>
+    <p id="destinationPosition">Calculating destination...</p>
 
     <script>
         function updateLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.watchPosition(function(position) {
-                    var lat1 = position.coords.latitude;
-                    var lon1 = position.coords.longitude;
-                    document.getElementById('coordinates').textContent = 'Current position: ' + lat1 + ', ' + lon1;
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var currentLat = position.coords.latitude;
+                    var currentLon = position.coords.longitude;
+                    var currentPositionText = 'Current position: Latitude = ' + currentLat.toFixed(6) + ', Longitude = ' + currentLon.toFixed(6);
+                    document.getElementById('currentPosition').textContent = currentPositionText;
 
-                    // Turf.js를 사용하여 목적지 계산
-                    var from = turf.point([lon1, lat1]);
+                    // Turf.js를 사용하여 2미터 앞의 목적지 계산
+                    var startPoint = turf.point([currentLon, currentLat]);
                     var distance = 2; // meters
-                    var bearing = 0; // north
+                    var bearing = 0; // North
                     var options = {units: 'meters'};
-                    var destination = turf.destination(from, distance, bearing, options);
-                    var newLat = destination.geometry.coordinates[1];
-                    var newLon = destination.geometry.coordinates[0];
-
-                    document.getElementById('newCoordinates').textContent = '2m in front position: ' + newLat + ', ' + newLon;
-                    
-                    // 여기에서 AR 증강 로직을 통합할 수 있습니다.
-                    // 예: createBoxAt(newLat, newLon);
+                    var endPoint = turf.destination(startPoint, distance, bearing, options);
+                    var destinationLat = endPoint.geometry.coordinates[1];
+                    var destinationLon = endPoint.geometry.coordinates[0];
+                    var destinationPositionText = 'Destination position (2m north): Latitude = ' + destinationLat.toFixed(6) + ', Longitude = ' + destinationLon.toFixed(6);
+                    document.getElementById('destinationPosition').textContent = destinationPositionText;
 
                 }, function(error) {
                     console.error("Error Code = " + error.code + " - " + error.message);
-                });
+                }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
 
-        document.addEventListener('DOMContentLoaded', updateLocation);
+        // 0.5초 간격으로 위치 업데이트 실행
+        setInterval(updateLocation, 500);
     </script>
 </body>
 </html>
