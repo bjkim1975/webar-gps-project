@@ -5,10 +5,30 @@
     <title>WebAR GPS Project</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/geolib@3/dist/geolib.umd.js"></script>
     <script>
-        console.log(geolib); // geolib 객체 출력하여 로드 확인
+        function loadScript(url, callback) {
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+    
+            script.onload = function() {
+                callback();
+            };
+    
+            script.onerror = function() {
+                console.error('Script load error: ' + url);
+            };
+    
+            document.head.appendChild(script);
+        }
+    
+        loadScript('https://cdn.jsdelivr.net/npm/geolib@3/dist/geolib.umd.js', function() {
+            console.log('Geolib loaded successfully.');
+            const point = geolib.computeDestinationPoint({latitude: 52.518611, longitude: 13.408056}, 1000, 180);
+            console.log(point);
+        });
     </script>
+    
     <style>
         #distance {
             position: absolute;
