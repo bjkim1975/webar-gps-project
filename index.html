@@ -43,6 +43,8 @@
             const currentLat = crd.latitude;
             const currentLon = crd.longitude;
 
+            console.log(`현재 위치: ${currentLat}, ${currentLon}`);
+
             if (steps === 0) {
                 // 초기 목적지 위치 설정 (현재 위치에서 북쪽으로 10 미터)
                 initialLat = currentLat;
@@ -74,6 +76,14 @@
 
         setInterval(function() {
             navigator.geolocation.getCurrentPosition(success, error, options);
+
+            // 임의로 현재 위치를 북쪽으로 10cm씩 이동
+            if (initialLat && initialLon) {
+                const simulatedPosition = turf.destination([initialLon, initialLat], steps * stepDistance, 0, {units: 'kilometers'});
+                const simulatedLat = simulatedPosition.geometry.coordinates[1];
+                const simulatedLon = simulatedPosition.geometry.coordinates[0];
+                success({ coords: { latitude: simulatedLat, longitude: simulatedLon } });
+            }
         }, 500);
     </script>
 </body>
