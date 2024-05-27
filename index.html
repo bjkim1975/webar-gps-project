@@ -1,22 +1,72 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>WebAR Project</title>
+    <title>GPS-based AR with Three.js</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <!-- A-Frame 라이브러리 -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <!-- AR.js 라이브러리 -->
-    <script src="https://cdn.jsdelivr.net/gh/jeromeetienne/AR.js/aframe/build/aframe-ar.js"></script>
-  </head>
-  <body style="margin: 0; overflow: hidden;">
-    <a-scene embedded arjs='sourceType: webcam;'>
-      <!-- AR.js Marker -->
-      <a-marker preset='hiro'>
-        <!-- 노란색 정육면체 -->
-        <a-box position='0 0.15 0' material='color: yellow;' depth='0.3' height='0.3' width='0.3'></a-box>
-      </a-marker>
-      <a-entity camera></a-entity>
-    </a-scene>
-  </body>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://jeromeetienne.github.io/AR.js/aframe/build/aframe-ar.js"></script>
+</head>
+<body style="margin: 0; overflow: hidden;">
+    <script>
+        // Initialize scene, camera, and renderer
+        var scene = new THREE.Scene();
+        var camera = new THREE.Camera();
+        var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Handle AR with AR.js
+        var arToolkitSource = new THREEx.ArToolkitSource({
+            sourceType: 'webcam'
+        });
+
+        arToolkitSource.init(function onReady() {
+            setTimeout(() => onResize(), 2000);
+        });
+
+        function onResize() {
+            arToolkitSource.onResizeElement();
+            arToolkitSource.copyElementSizeTo(renderer.domElement);
+            if (arToolkitContext.arController !== null) {
+                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
+            }
+        }
+
+        var arToolkitContext = new THREEx.ArToolkitContext({
+            cameraParametersUrl: THREEx.ArToolkitContext.baseURL + '../data/data/camera_para.dat',
+            detectionMode: 'mono'
+        });
+
+        arToolkitContext.init(function onCompleted(){
+            camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+        });
+
+        // Add a cube
+        var geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+        var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        var cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Render loop
+        function animate() {
+            requestAnimationFrame(animate);
+            if (arToolkitSource.ready !== false) {
+                arToolkitContext.update(arToolkitSource.domElement);
+            }
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // GPS Update - Example: Fetching coordinates
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+            console.log("Current position:", lat, lon);
+            // Update object positions based on GPS data here
+        });
+
+    </script>
+</body>
 </html>
