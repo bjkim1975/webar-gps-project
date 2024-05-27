@@ -1,46 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web AR GPS and Turf.js Example</title>
+    <title>GPS Update with Turf.js</title>
     <script src="https://cdn.jsdelivr.net/npm/@turf/turf"></script>
 </head>
 <body>
-    <h1>Web AR GPS Example</h1>
-    <p id="currentPosition">Waiting for GPS...</p>
-    <p id="destinationPosition">Calculating destination...</p>
+    <h1>GPS Movement Simulation</h1>
+    <div>Current Latitude: <span id="current-lat"></span>, Longitude: <span id="current-lon"></span></div>
+    <div>Destination Latitude: <span id="destination-lat"></span>, Longitude: <span id="destination-lon"></span></div>
+    <div>Distance to Destination: <span id="distance"></span> meters</div>
 
     <script>
-        function updateLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var currentLat = position.coords.latitude;
-                    var currentLon = position.coords.longitude;
-                    var currentPositionText = 'Current position: Latitude = ' + currentLat.toFixed(6) + ', Longitude = ' + currentLon.toFixed(6);
-                    document.getElementById('currentPosition').textContent = currentPositionText;
+        let currentLat = 37.556738; // 초기 위도
+        let currentLon = 126.975960; // 초기 경도
+        const initialDistance = 2; // 2 미터 북쪽
 
-                    // Turf.js를 사용하여 2미터 앞의 목적지 계산
-                    var startPoint = turf.point([currentLon, currentLat]);
-                    var distance = 2; // meters
-                    var bearing = 0; // North
-                    var options = {units: 'meters'};
-                    var endPoint = turf.destination(startPoint, distance, bearing, options);
-                    var destinationLat = endPoint.geometry.coordinates[1];
-                    var destinationLon = endPoint.geometry.coordinates[0];
-                    var destinationPositionText = 'Destination position (2m north): Latitude = ' + destinationLat.toFixed(6) + ', Longitude = ' + destinationLon.toFixed(6);
-                    document.getElementById('destinationPosition').textContent = destinationPositionText;
+        // 초기 목적지 설정
+        let destination = turf.destination([currentLon, currentLat], initialDistance / 1000, 0, {units: 'kilometers'});
+        let destinationLat = destination.geometry.coordinates[1];
+        let destinationLon = destination.geometry.coordinates[0];
 
-                }, function(error) {
-                    console.error("Error Code = " + error.code + " - " + error.message);
-                }, { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 });
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
+        function updatePosition() {
+            // 현재 위치 표시
+            document.getElementById('current-lat').textContent = currentLat.toFixed(6);
+            document.getElementById('current-lon').textContent = currentLon.toFixed(6);
+
+            // 목적지 위치 표시
+            document.getElementById('destination-lat').textContent = destinationLat.toFixed(6);
+            document.getElementById('destination-lon').textContent = destinationLon.toFixed(6);
+
+            // 거리 계산 및 표시
+            const from = turf.point([currentLon, currentLat]);
+            const to = turf.point([destinationLon, destinationLat]);
+            const options = {units: 'meters'};
+            let distance = turf.distance(from, to, options);
+            document.getElementById('distance').textContent = distance.toFixed(2);
+
+            // 현재 위치를 약간 북쪽으로 이동
+            let newPoint = turf.destination([currentLon, currentLat], 0.002, 0, {units: 'kilometers'});
+            currentLat = newPoint.geometry.coordinates[1];
+            currentLon = newPoint.geometry.coordinates[0];
         }
 
-        // 0.5초 간격으로 위치 업데이트 실행
-        setInterval(updateLocation, 500);
+        // 0.5초마다 위치 업데이트
+        setInterval(updatePosition, 500);
     </script>
 </body>
 </html>
